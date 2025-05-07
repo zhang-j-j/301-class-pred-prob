@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Prep work
 # Step 1: data check and data cleaning
@@ -13,13 +13,13 @@ train_raw <- read_csv(here("data/train.csv"), na = c("", "NA", "N/A"))
 test_raw <- read_csv(here("data/test.csv"), na = c("", "NA", "N/A"))
 
 # Data check ----
-# skimr::skim_without_charts(train_raw)
+skimr::skim_without_charts(train_raw)
 
-# 57 columns, 9410 rows
+# 57 columns, 10500 rows
 # some missingness issues throughout
 
 # retype variables:
-# price (character to numeric)
+# host_is_superhost (numeric to factor)
 # host_*_rate (character to numeric)
 # change logicals to factor
 
@@ -36,7 +36,7 @@ test_raw <- read_csv(here("data/test.csv"), na = c("", "NA", "N/A"))
 train_clean <- train_raw |> 
   janitor::clean_names() |> 
   mutate(
-    price = parse_number(price),
+    host_is_superhost = factor(host_is_superhost, levels = c(1, 0)),
     bathrooms = if_else(
       # this gives a warning, but not an actual issue
       str_starts(bathrooms_text, "\\d"), parse_number(bathrooms_text),
@@ -44,8 +44,9 @@ train_clean <- train_raw |>
     ),
     across(contains("_rate"), parse_number),
     across(where(is.logical), as.factor),
-    across(c(listing_location, room_type), as.factor),
-    has_availability = fct_na_value_to_level(has_availability, level = "FALSE")
+    across(c(listing_location, room_type, host_response_time), as.factor),
+    has_availability = fct_na_value_to_level(has_availability, level = "FALSE"),
+    host_response_time = fct_na_value_to_level(host_response_time, level = "unknown")
   )
 
 ## Handle listed entries ----
@@ -70,12 +71,12 @@ train_clean <- train_clean |>
 # # examine semi-clean data
 # skimr::skim_without_charts(train_clean)
 # 
-# train_clean |> 
-#   miss_var_summary() |> 
+# train_clean |>
+#   miss_var_summary() |>
 #   print(n = 25)
 # 
-# train_clean |> 
-#   gg_miss_upset(nsets = 13)
+# train_clean |>
+#   gg_miss_upset(nsets = 14)
 
 # Notes ----
 
@@ -87,6 +88,7 @@ train_clean <- train_clean |>
 # missingness in reviews: might be worthwhile to add a new variable indicating if
 # reviews are recorded
 
+# somewhat high missingness in beds, but still not terrible, can be handled
 # other variables have minor missingness that can simply be imputed/handled in
 # preprocessing steps
 
@@ -100,21 +102,10 @@ train_clean <- train_clean |>
 # Target variable check ----
 
 # train_clean |> 
-#   ggplot(aes(price)) +
-#   geom_density()
-# 
-# train_clean |> 
-#   ggplot(aes(price)) +
-#   geom_boxplot()
-# 
-# # there is a strong right-skew, so will need to use some transformation
-# # probably start off with log-transformation, maybe try more complex later
-# 
-# # log-transformation gives a pretty decent distribution
-# train_clean |> 
-#   ggplot(aes(price)) +
-#   geom_density() +
-#   scale_x_log10()
+#   ggplot(aes(host_is_superhost)) +
+#   geom_bar()
+
+# very even distribution between classes, so unlikely to need up/downsampling
 
 # Clean testing set ----
 test_clean <- test_raw |> 
@@ -127,8 +118,9 @@ test_clean <- test_raw |>
     ),
     across(contains("_rate"), parse_number),
     across(where(is.logical), as.factor),
-    across(c(listing_location, room_type), as.factor),
-    has_availability = fct_na_value_to_level(has_availability, level = "FALSE")
+    across(c(listing_location, room_type, host_response_time), as.factor),
+    has_availability = fct_na_value_to_level(has_availability, level = "FALSE"),
+    host_response_time = fct_na_value_to_level(host_response_time, level = "unknown")
   )
 
 test_clean <- test_clean |> 
@@ -153,7 +145,7 @@ test_clean <- test_clean |>
   ) |> 
   select(-None)
 
-# # examine semi-clean data: no major issues
+# # examine semi-clean data: there is some new missingness in the factor variables
 # skimr::skim_without_charts(test_clean)
 
 # Write out results ----
