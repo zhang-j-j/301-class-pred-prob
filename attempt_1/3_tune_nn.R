@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 3: tune neural network models
@@ -7,7 +7,7 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
-library(doParallel)
+library(future)
 
 # handle conflicts
 tidymodels_prefer()
@@ -17,9 +17,8 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_1/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
+# controls
 load(here("attempt_1/data_splits/keep_wflow_grid.rda"))
-load(here("attempt_1/data_splits/my_metrics.rda"))
 
 # linear recipe
 load(here("attempt_1/recipes/tree_rec.rda"))
@@ -30,7 +29,7 @@ nn_spec <- mlp(
   penalty = tune()
 ) |> 
   set_engine("nnet") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 nn_wflow <- workflow() |> 
@@ -54,24 +53,20 @@ nn_grid <- grid_regular(
 
 # Fit workflows ----
 
-# set up parallel network sockets
-cores <- parallel::detectCores(logical = FALSE) - 1
-c1 <- makePSOCKcluster(cores)
-registerDoParallel(c1)
+# set up parallel processing
+cores <- availableCores() - 1
+plan(multisession, workers = cores)
 
 # fit workflow
 nn_tuned <- nn_wflow |> 
   tune_grid(
     airbnb_folds, 
     grid = nn_grid,
-    control = keep_wflow_grid,
-    metrics = my_metrics
+    control = keep_wflow_grid
   )
 
 # reset to sequential processing
-stopCluster(c1)
-registerDoSEQ()
-rm(c1)
+plan(sequential)
 
 # Write out results ----
 save(nn_tuned, file = here("attempt_1/results/nn_tuned.rda"))

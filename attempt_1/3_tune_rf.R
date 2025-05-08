@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 3: tune random forest models
@@ -7,24 +7,23 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
-library(doParallel)
+library(future)
 
 # handle conflicts
 tidymodels_prefer()
 
 # set seed
-set.seed(5)
+set.seed(51)
 
 # Load objects ----
 
 # resamples
 load(here("attempt_1/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
+# controls
 load(here("attempt_1/data_splits/keep_wflow_grid.rda"))
-load(here("attempt_1/data_splits/my_metrics.rda"))
 
-# linear recipe
+# tree recipe
 load(here("attempt_1/recipes/tree_rec.rda"))
 
 # Model specification ----
@@ -34,7 +33,7 @@ rf_spec <- rand_forest(
   min_n = tune()
 ) |> 
   set_engine("ranger") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 rf_wflow <- workflow() |> 
@@ -60,24 +59,20 @@ rf_grid <- grid_regular(
 
 # Fit workflows ----
 
-# set up parallel network sockets
-cores <- parallel::detectCores(logical = FALSE) - 1
-c1 <- makePSOCKcluster(cores)
-registerDoParallel(c1)
+# set up parallel processing
+cores <- availableCores() - 1
+plan(multisession, workers = cores)
 
 # fit workflow
 rf_tuned <- rf_wflow |> 
   tune_grid(
     airbnb_folds, 
     grid = rf_grid,
-    control = keep_wflow_grid,
-    metrics = my_metrics
+    control = keep_wflow_grid
   )
 
 # reset to sequential processing
-stopCluster(c1)
-registerDoSEQ()
-rm(c1)
+plan(sequential)
 
 # Write out results ----
 save(rf_tuned, file = here("attempt_1/results/rf_tuned.rda"))

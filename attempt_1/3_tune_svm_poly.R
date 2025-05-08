@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 3: tune polynomial SVM models
@@ -7,7 +7,7 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
-library(doParallel)
+library(future)
 
 # handle conflicts
 tidymodels_prefer()
@@ -17,9 +17,8 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_1/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
+# controls
 load(here("attempt_1/data_splits/keep_wflow_grid.rda"))
-load(here("attempt_1/data_splits/my_metrics.rda"))
 
 # linear recipe
 load(here("attempt_1/recipes/lm_rec.rda"))
@@ -31,7 +30,7 @@ svm_poly_spec <- svm_poly(
   scale_factor = tune()
 ) |> 
   set_engine("kernlab") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 svm_poly_wflow <- workflow() |> 
@@ -51,29 +50,25 @@ svm_poly_params <- extract_parameter_set_dials(svm_poly_spec) |>
 # build tuning grid
 svm_poly_grid <- grid_regular(
   svm_poly_params, 
-  levels = 4
+  levels = 3
 )
 
 # Fit workflows ----
 
-# set up parallel network sockets
-cores <- parallel::detectCores(logical = FALSE) - 1
-c1 <- makePSOCKcluster(cores)
-registerDoParallel(c1)
+# set up parallel processing
+cores <- availableCores() - 1
+plan(multisession, workers = cores)
 
 # fit workflow
 svm_poly_tuned <- svm_poly_wflow |> 
   tune_grid(
     airbnb_folds, 
     grid = svm_poly_grid,
-    control = keep_wflow_grid,
-    metrics = my_metrics
+    control = keep_wflow_grid
   )
 
 # reset to sequential processing
-stopCluster(c1)
-registerDoSEQ()
-rm(c1)
+plan(sequential)
 
 # Write out results ----
 save(svm_poly_tuned, file = here("attempt_1/results/svm_poly_tuned.rda"))

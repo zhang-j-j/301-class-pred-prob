@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 3: tune knn models with tree recipe
@@ -7,22 +7,21 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
-library(doParallel)
+library(future)
 
 # handle conflicts
 tidymodels_prefer()
 
 # set seed
-set.seed(49)
+set.seed(419)
 
 # Load objects ----
 
 # resamples
 load(here("attempt_1/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
+# controls
 load(here("attempt_1/data_splits/keep_wflow_grid.rda"))
-load(here("attempt_1/data_splits/my_metrics.rda"))
 
 # linear recipe
 load(here("attempt_1/recipes/tree_rec.rda"))
@@ -30,7 +29,7 @@ load(here("attempt_1/recipes/tree_rec.rda"))
 # Model specification ----
 knn_tree_spec <- nearest_neighbor(neighbors = tune()) |> 
   set_engine("kknn") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 knn_tree_wflow <- workflow() |> 
@@ -53,24 +52,20 @@ knn_tree_grid <- grid_regular(
 
 # Fit workflows ----
 
-# set up parallel network sockets
-cores <- parallel::detectCores(logical = FALSE) - 1
-c1 <- makePSOCKcluster(cores)
-registerDoParallel(c1)
+# set up parallel processing
+cores <- availableCores() - 1
+plan(multisession, workers = cores)
 
 # fit workflow
 knn_tree_tuned <- knn_tree_wflow |> 
   tune_grid(
     airbnb_folds, 
     grid = knn_tree_grid,
-    control = keep_wflow_grid,
-    metrics = my_metrics
+    control = keep_wflow_grid
   )
 
 # reset to sequential processing
-stopCluster(c1)
-registerDoSEQ()
-rm(c1)
+plan(sequential)
 
 # Write out results ----
 save(knn_tree_tuned, file = here("attempt_1/results/knn_tree_tuned.rda"))
