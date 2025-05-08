@@ -26,12 +26,12 @@ tune_results <- as_workflow_set(
   nb = nb_fit,
   log = log_fit,
   en = en_tuned,
-  # knn_lm = knn_lm_tuned,
-  # knn_tree = knn_tree_tuned,
+  knn_lm = knn_lm_tuned,
+  knn_tree = knn_tree_tuned,
   # rf = rf_tuned,
   bt = bt_tuned,
   # svm_poly = svm_poly_tuned,
-  # svm_rbf = svm_rbf_tuned,
+  svm_rbf = svm_rbf_tuned,
   mars = mars_tuned,
   nn = nn_tuned
 )
@@ -53,9 +53,11 @@ tune_results |>
 # boosted tree is the best by far so far
 # nb, linear models are pretty poor as well
 
+# knn is second best but very far off, svm is pretty bad relatively
+
 # Analyze tuning values ----
 
-# function to extract all mae metrics
+# function to extract all roc_auc metrics
 roc_auc_metrics <- function(result) {
   result |> 
     collect_metrics() |> 
@@ -106,10 +108,10 @@ save(final_en, file = here("attempt_1/submissions/workflows/final_en.rda"))
 
 ## linear knn ----
 # knn_lm_tuned |> 
-#   autoplot(metric = "mae")
+#   autoplot(metric = "roc_auc")
 # 
 # knn_lm_tuned |> 
-#   mae_metrics()
+#   roc_auc_metrics()
 
 # top models
 final_knn_lm <- c(1, 2, 3, 4, 5) |> 
@@ -125,10 +127,10 @@ save(final_knn_lm, file = here("attempt_1/submissions/workflows/final_knn_lm.rda
 
 ## tree knn ----
 # knn_tree_tuned |> 
-#   autoplot(metric = "mae")
+#   autoplot(metric = "roc_auc")
 # 
 # knn_tree_tuned |> 
-#   mae_metrics()
+#   roc_auc_metrics()
 
 # top models
 final_knn_tree <- c(1, 2, 3) |> 
@@ -143,6 +145,25 @@ final_knn_tree <- c(1, 2, 3) |>
 save(final_knn_tree, file = here("attempt_1/submissions/workflows/final_knn_tree.rda"))
 
 ## rf ----
+# rf_tuned |>
+#   autoplot(metric = "roc_auc")
+# 
+# # 400 trees seems to give stability
+# 
+# rf_tuned |>
+#   roc_auc_metrics()
+
+# top models
+final_rf <- c(1, 2, 3, 4) |> 
+  map(
+    \(x) rf_tuned |> 
+      extract_workflow() |> 
+      finalize_workflow(get_hyperparams(rf_tuned, x, c(mtry, trees, min_n)))
+  ) |> 
+  as_tibble_col(column_name = "workflow")
+
+# save workflows
+save(final_rf, file = here("attempt_1/submissions/workflows/final_rf.rda"))
 
 
 ## bt ----
@@ -165,7 +186,19 @@ final_bt <- c(1, 2, 3, 4, 5) |>
 save(final_bt, file = here("attempt_1/submissions/workflows/final_bt.rda"))
 
 ## poly svm ----
+# svm_poly_tuned |>
+#   autoplot(metric = "roc_auc")
+# 
+# svm_poly_tuned |>
+#   roc_auc_metrics()
 
+# winning model
+final_svm_poly <- svm_poly_tuned |> 
+  extract_workflow() |> 
+  finalize_workflow(get_hyperparams(svm_poly_tuned, 1, c(cost, degree, scale_factor)))
+
+# save workflow
+save(final_svm_poly, file = here("attempt_1/submissions/workflows/final_svm_poly.rda"))
 
 ## rbf svm ----
 # svm_rbf_tuned |>
