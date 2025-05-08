@@ -56,32 +56,44 @@ en_preds <- en_fit |>
 write_csv(en_preds, file = here("attempt_1/submissions/preds/en_preds.csv"))
 
 ## linear knn ----
-# knn_lm_preds <- knn_lm_fits |> 
-#   mutate(
-#     preds = map(knn_lm_fits$fit, compute_preds)
-#   )
-# 
-# # write out results
-# for (ind in c(1, 2, 3, 4, 5)) {
-#   write_csv(knn_lm_preds$preds[[ind]], file = here(paste0(
-#     "attempt_1/submissions/preds/knn_lm_preds_", as.character(ind), ".csv"
-#   )))
-# }
+knn_lm_preds <- knn_lm_fits |>
+  mutate(
+    preds = map(knn_lm_fits$fit, compute_preds)
+  )
+
+# write out results
+for (ind in c(1, 2, 3)) {
+  write_csv(knn_lm_preds$preds[[ind]], file = here(paste0(
+    "attempt_1/submissions/preds/knn_lm_preds_", as.character(ind), ".csv"
+  )))
+}
 
 ## tree knn ----
-# knn_tree_preds <- knn_tree_fits |> 
-#   mutate(
-#     preds = map(knn_tree_fits$fit, compute_preds)
-#   )
-# 
-# # write out results
-# for (ind in c(1, 2, 3)) {
-#   write_csv(knn_tree_preds$preds[[ind]], file = here(paste0(
-#     "attempt_1/submissions/preds/knn_tree_preds_", as.character(ind), ".csv"
-#   )))
-# }
+knn_tree_preds <- knn_tree_fits |>
+  mutate(
+    preds = map(knn_tree_fits$fit, compute_preds)
+  )
+
+# write out results
+for (ind in c(1, 2, 3, 4, 5)) {
+  write_csv(knn_tree_preds$preds[[ind]], file = here(paste0(
+    "attempt_1/submissions/preds/knn_tree_preds_", as.character(ind), ".csv"
+  )))
+}
 
 ## rf ----
+
+rf_preds <- rf_fits |>
+  mutate(
+    preds = map(rf_fits$fit, compute_preds)
+  )
+
+# write out results
+for (ind in c(1, 2, 3, 4)) {
+  write_csv(rf_preds$preds[[ind]], file = here(paste0(
+    "attempt_1/submissions/preds/rf_preds_", as.character(ind), ".csv"
+  )))
+}
 
 ## bt ----
 bt_preds <- bt_fits |> 
@@ -97,13 +109,18 @@ for (ind in c(1, 2, 3, 4, 5)) {
 }
 
 ## poly svm ----
-
-## rbf svm ----
-# svm_rbf_preds <- svm_rbf_fit |> 
+# svm_poly_preds <- svm_poly_fit |>
 #   compute_preds()
 # 
 # # write out results
-# write_csv(svm_rbf_preds, file = here("attempt_1/submissions/preds/svm_rbf_preds.csv"))
+# write_csv(svm_poly_preds, file = here("attempt_1/submissions/preds/svm_poly_preds.csv"))
+
+## rbf svm ----
+svm_rbf_preds <- svm_rbf_fit |>
+  compute_preds()
+
+# write out results
+write_csv(svm_rbf_preds, file = here("attempt_1/submissions/preds/svm_rbf_preds.csv"))
 
 ## mars ----
 mars_preds <- mars_fits |> 
