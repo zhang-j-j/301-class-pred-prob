@@ -168,11 +168,11 @@ save(final_bt, file = here("attempt_1/submissions/workflows/final_bt.rda"))
 
 
 ## rbf svm ----
-# svm_rbf_tuned |> 
-#   autoplot(metric = "mae")
+# svm_rbf_tuned |>
+#   autoplot(metric = "roc_auc")
 # 
-# svm_rbf_tuned |> 
-#   mae_metrics()
+# svm_rbf_tuned |>
+#   roc_auc_metrics()
 
 # winning model, no others close
 final_svm_rbf <- svm_rbf_tuned |> 
