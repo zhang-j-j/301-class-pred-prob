@@ -26,13 +26,20 @@ list.files(
 
 # Compute predictions ----
 
-# function to compute predictions (try rounding to nearest whole number)
+# function to compute predictions
 compute_preds <- function(model) {
   test_clean |> 
     select(id) |> 
     bind_cols(model |> predict(test_clean, type = "prob")) |> 
     select(id, predicted = .pred_1)
 }
+
+## nb ----
+nb_preds <- nb_fit |> 
+  compute_preds()
+
+# write out results
+write_csv(nb_preds, file = here("attempt_1/submissions/preds/nb_preds.csv"))
 
 ## log ----
 log_preds <- log_fit |> 
@@ -49,30 +56,30 @@ en_preds <- en_fit |>
 write_csv(en_preds, file = here("attempt_1/submissions/preds/en_preds.csv"))
 
 ## linear knn ----
-knn_lm_preds <- knn_lm_fits |> 
-  mutate(
-    preds = map(knn_lm_fits$fit, compute_preds)
-  )
-
-# write out results
-for (ind in c(1, 2, 3, 4, 5)) {
-  write_csv(knn_lm_preds$preds[[ind]], file = here(paste0(
-    "attempt_1/submissions/preds/knn_lm_preds_", as.character(ind), ".csv"
-  )))
-}
+# knn_lm_preds <- knn_lm_fits |> 
+#   mutate(
+#     preds = map(knn_lm_fits$fit, compute_preds)
+#   )
+# 
+# # write out results
+# for (ind in c(1, 2, 3, 4, 5)) {
+#   write_csv(knn_lm_preds$preds[[ind]], file = here(paste0(
+#     "attempt_1/submissions/preds/knn_lm_preds_", as.character(ind), ".csv"
+#   )))
+# }
 
 ## tree knn ----
-knn_tree_preds <- knn_tree_fits |> 
-  mutate(
-    preds = map(knn_tree_fits$fit, compute_preds)
-  )
-
-# write out results
-for (ind in c(1, 2, 3)) {
-  write_csv(knn_tree_preds$preds[[ind]], file = here(paste0(
-    "attempt_1/submissions/preds/knn_tree_preds_", as.character(ind), ".csv"
-  )))
-}
+# knn_tree_preds <- knn_tree_fits |> 
+#   mutate(
+#     preds = map(knn_tree_fits$fit, compute_preds)
+#   )
+# 
+# # write out results
+# for (ind in c(1, 2, 3)) {
+#   write_csv(knn_tree_preds$preds[[ind]], file = here(paste0(
+#     "attempt_1/submissions/preds/knn_tree_preds_", as.character(ind), ".csv"
+#   )))
+# }
 
 ## rf ----
 
@@ -83,7 +90,7 @@ bt_preds <- bt_fits |>
   )
 
 # write out results
-for (ind in c(1, 2, 3)) {
+for (ind in c(1, 2, 3, 4, 5)) {
   write_csv(bt_preds$preds[[ind]], file = here(paste0(
     "attempt_1/submissions/preds/bt_preds_", as.character(ind), ".csv"
   )))
@@ -92,11 +99,11 @@ for (ind in c(1, 2, 3)) {
 ## poly svm ----
 
 ## rbf svm ----
-svm_rbf_preds <- svm_rbf_fit |> 
-  compute_preds()
-
-# write out results
-write_csv(svm_rbf_preds, file = here("attempt_1/submissions/preds/svm_rbf_preds.csv"))
+# svm_rbf_preds <- svm_rbf_fit |> 
+#   compute_preds()
+# 
+# # write out results
+# write_csv(svm_rbf_preds, file = here("attempt_1/submissions/preds/svm_rbf_preds.csv"))
 
 ## mars ----
 mars_preds <- mars_fits |> 
@@ -105,7 +112,7 @@ mars_preds <- mars_fits |>
   )
 
 # write out results
-for (ind in c(1, 2, 3, 4)) {
+for (ind in c(1, 2, 3)) {
   write_csv(mars_preds$preds[[ind]], file = here(paste0(
     "attempt_1/submissions/preds/mars_preds_", as.character(ind), ".csv"
   )))
@@ -117,17 +124,3 @@ nn_preds <- nn_fit |>
 
 # write out results
 write_csv(nn_preds, file = here("attempt_1/submissions/preds/nn_preds.csv"))
-
-
-# ## knn_lm_1 ----
-# 
-# knn_lm_1_preds <- test_clean |> 
-#   select(id) |> 
-#   bind_cols(final_wflows$fit[[1]] |> predict(test_clean)) |> 
-#   mutate(predicted = .pred ^ 10) |> 
-#   select(-.pred)
-# 
-# # could try rounding predictions
-# 
-# # write out results
-# write_csv(knn_lm_1_preds, file = here("attempt_1/submissions/knn_lm_1_preds.csv"))

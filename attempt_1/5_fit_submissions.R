@@ -8,12 +8,10 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 library(future)
+library(discrim)
 
 # handle conflicts
 tidymodels_prefer()
-
-# set seed
-set.seed(205)
 
 # Load objects ----
 
@@ -34,6 +32,13 @@ list.files(
 cores <- availableCores() - 1
 plan(multisession, workers = cores)
 
+## nb ----
+nb_fit <- final_nb |> 
+  fit(airbnb_train)
+
+# write out results
+save(nb_fit, file = here("attempt_1/submissions/fitted/nb_fit.rda"))
+
 ## log ----
 log_fit <- final_log |> 
   fit(airbnb_train)
@@ -49,26 +54,30 @@ en_fit <- final_en |>
 save(en_fit, file = here("attempt_1/submissions/fitted/en_fit.rda"))
 
 ## linear knn ----
-knn_lm_fits <- final_knn_lm |> 
-  mutate(
-    fit = map(final_knn_lm$workflow, \(x) fit(x, airbnb_train)) 
-  )
-
-# write out results
-save(knn_lm_fits, file = here("attempt_1/submissions/fitted/knn_lm_fits.rda"))
+# knn_lm_fits <- final_knn_lm |> 
+#   mutate(
+#     fit = map(final_knn_lm$workflow, \(x) fit(x, airbnb_train)) 
+#   )
+# 
+# # write out results
+# save(knn_lm_fits, file = here("attempt_1/submissions/fitted/knn_lm_fits.rda"))
 
 ## tree knn ----
-knn_tree_fits <- final_knn_tree |> 
-  mutate(
-    fit = map(final_knn_tree$workflow, \(x) fit(x, airbnb_train)) 
-  )
-
-# write out results
-save(knn_tree_fits, file = here("attempt_1/submissions/fitted/knn_tree_fits.rda"))
+# knn_tree_fits <- final_knn_tree |> 
+#   mutate(
+#     fit = map(final_knn_tree$workflow, \(x) fit(x, airbnb_train)) 
+#   )
+# 
+# # write out results
+# save(knn_tree_fits, file = here("attempt_1/submissions/fitted/knn_tree_fits.rda"))
 
 ## rf ----
 
 ## bt ----
+
+# set seed (since these may be run separately)
+set.seed(25)
+
 bt_fits <- final_bt |> 
   mutate(
     fit = map(final_bt$workflow, \(x) fit(x, airbnb_train)) 
@@ -80,11 +89,11 @@ save(bt_fits, file = here("attempt_1/submissions/fitted/bt_fits.rda"))
 ## poly svm ----
 
 ## rbf svm ----
-svm_rbf_fit <- final_svm_rbf |> 
-  fit(airbnb_train)
-
-# write out results
-save(svm_rbf_fit, file = here("attempt_1/submissions/fitted/svm_rbf_fit.rda"))
+# svm_rbf_fit <- final_svm_rbf |> 
+#   fit(airbnb_train)
+# 
+# # write out results
+# save(svm_rbf_fit, file = here("attempt_1/submissions/fitted/svm_rbf_fit.rda"))
 
 ## mars ----
 mars_fits <- final_mars |> 
