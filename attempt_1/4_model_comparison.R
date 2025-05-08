@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 4: model comparison and selection of final models
@@ -23,63 +23,58 @@ list.files(
 
 # package as workflow set
 tune_results <- as_workflow_set(
-  ols = ols_fit,
-  en = en_tuned,
-  knn_lm = knn_lm_tuned,
-  knn_tree = knn_tree_tuned,
+  log = log_fit,
+  # en = en_tuned,
+  # knn_lm = knn_lm_tuned,
+  # knn_tree = knn_tree_tuned,
   # rf = rf_tuned,
-  bt = bt_tuned,
+  # bt = bt_tuned,
   # svm_poly = svm_poly_tuned,
-  svm_rbf = svm_rbf_tuned,
-  mars = mars_tuned,
-  nn = nn_tuned
+  # svm_rbf = svm_rbf_tuned,
+  # mars = mars_tuned,
+  # nn = nn_tuned
 )
 
 # Compare performance metrics ----
 
-# MAE is the final performance metric
+# roc_auc is the final performance metric
 
-# all_models <- tune_results |> 
-#   collect_metrics() |> 
-#   filter(.metric == "mae") |> 
-#   arrange(mean)
-# 
-# all_models |> view()
-# 
-# tune_results |>
-#   autoplot(metric = "mae", select_best = TRUE)
+all_models <- tune_results |>
+  collect_metrics() |>
+  filter(.metric == "roc_auc") |>
+  arrange(-mean)
 
-# ols/en are both pretty bad
-# for this first attempt, still try to submit everything just to test out
+all_models |> view()
 
-# adding boosted tree is way better than all others
+tune_results |>
+  autoplot(metric = "roc_auc", select_best = TRUE)
 
 # Analyze tuning values ----
 
 # function to extract all mae metrics
-mae_metrics <- function(result) {
+roc_auc_metrics <- function(result) {
   result |> 
     collect_metrics() |> 
-    filter(.metric == "mae") |> 
-    arrange(mean)
+    filter(.metric == "roc_auc") |> 
+    arrange(-mean)
 }
 
 # function to get n-th best hyperparameters
 get_hyperparams <- function(result, n, params) {
   result |> 
-    mae_metrics() |> 
+    roc_auc_metrics() |> 
     filter(row_number() == {{ n }}) |> 
     select({{ params }})
 }
 
-## ols ----
+## log ----
 
-# this one is pretty bad, but still just try submitting
-final_ols <- ols_fit |> 
-  extract_workflow(ols_fit)
+# try this as initial testing
+final_log <- log_fit |> 
+  extract_workflow(log_fit)
 
 # save workflow
-save(final_ols, file = here("attempt_1/submissions/workflows/final_ols.rda"))
+save(final_log, file = here("attempt_1/submissions/workflows/final_log.rda"))
 
 ## en ----
 # en_tuned |> 

@@ -16,11 +16,6 @@ tidymodels_prefer()
 # testing data
 load(here("data/test_clean.rda"))
 
-# add a placeholder column for price 
-# temporary fix to issue, look into fixing this issue in future attempts
-test_clean <- test_clean |> 
-  mutate(price = 0)
-
 # fitted workflows
 list.files(
   path = here("attempt_1/submissions/fitted/"),
@@ -35,17 +30,16 @@ list.files(
 compute_preds <- function(model) {
   test_clean |> 
     select(id) |> 
-    bind_cols(model |> predict(test_clean)) |> 
-    mutate(predicted = round(10 ^ .pred)) |> 
-    select(-.pred)
+    bind_cols(model |> predict(test_clean, type = "prob")) |> 
+    select(id, predicted = .pred_1)
 }
 
-## ols ----
-ols_preds <- ols_fit |> 
+## log ----
+log_preds <- log_fit |> 
   compute_preds()
 
 # write out results
-write_csv(ols_preds, file = here("attempt_1/submissions/preds/ols_preds.csv"))
+write_csv(log_preds, file = here("attempt_1/submissions/preds/log_preds.csv"))
 
 ## en ----
 en_preds <- en_fit |> 

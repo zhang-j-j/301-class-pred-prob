@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 1
 # Step 5: fit selected models for submissions
@@ -7,7 +7,7 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
-library(doParallel)
+library(future)
 
 # handle conflicts
 tidymodels_prefer()
@@ -31,16 +31,15 @@ list.files(
 # Fit final workflows ----
 
 # set up parallel processing
-cores <- parallel::detectCores(logical = FALSE) - 1
-c1 <- makePSOCKcluster(cores)
-registerDoParallel(c1)
+cores <- availableCores() - 1
+plan(multisession, workers = cores)
 
-## ols ----
-ols_fit <- final_ols |> 
+## log ----
+log_fit <- final_log |> 
   fit(airbnb_train)
 
 # write out results
-save(ols_fit, file = here("attempt_1/submissions/fitted/ols_fit.rda"))
+save(log_fit, file = here("attempt_1/submissions/fitted/log_fit.rda"))
 
 ## en ----
 en_fit <- final_en |> 
@@ -104,6 +103,4 @@ nn_fit <- final_nn |>
 save(nn_fit, file = here("attempt_1/submissions/fitted/nn_fit.rda"))
 
 # reset to sequential processing
-stopCluster(c1)
-registerDoSEQ()
-rm(c1, cores)
+plan(sequential)

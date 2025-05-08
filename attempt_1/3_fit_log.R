@@ -17,7 +17,7 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_1/data_splits/airbnb_folds.rda"))
 
-# contrlog
+# controls
 load(here("attempt_1/data_splits/keep_wflow_res.rda"))
 
 # linear recipe
