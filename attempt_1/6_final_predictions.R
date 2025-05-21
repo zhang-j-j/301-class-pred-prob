@@ -108,13 +108,6 @@ for (ind in c(1, 2, 3, 4, 5)) {
   )))
 }
 
-## poly svm ----
-# svm_poly_preds <- svm_poly_fit |>
-#   compute_preds()
-# 
-# # write out results
-# write_csv(svm_poly_preds, file = here("attempt_1/submissions/preds/svm_poly_preds.csv"))
-
 ## rbf svm ----
 svm_rbf_preds <- svm_rbf_fit |>
   compute_preds()

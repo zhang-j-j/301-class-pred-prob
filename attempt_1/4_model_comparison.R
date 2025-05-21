@@ -30,7 +30,6 @@ tune_results <- as_workflow_set(
   knn_tree = knn_tree_tuned,
   rf = rf_tuned,
   bt = bt_tuned,
-  # svm_poly = svm_poly_tuned,
   svm_rbf = svm_rbf_tuned,
   mars = mars_tuned,
   nn = nn_tuned
@@ -184,21 +183,6 @@ final_bt <- c(1, 2, 3, 4, 5) |>
 
 # save workflows
 save(final_bt, file = here("attempt_1/submissions/workflows/final_bt.rda"))
-
-## poly svm ----
-# svm_poly_tuned |>
-#   autoplot(metric = "roc_auc")
-# 
-# svm_poly_tuned |>
-#   roc_auc_metrics()
-
-# # winning model
-# final_svm_poly <- svm_poly_tuned |> 
-#   extract_workflow() |> 
-#   finalize_workflow(get_hyperparams(svm_poly_tuned, 1, c(cost, degree, scale_factor)))
-# 
-# # save workflow
-# save(final_svm_poly, file = here("attempt_1/submissions/workflows/final_svm_poly.rda"))
 
 ## rbf svm ----
 # svm_rbf_tuned |>

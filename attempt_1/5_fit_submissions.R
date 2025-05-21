@@ -103,13 +103,6 @@ save(rf_fits, file = here("attempt_1/submissions/fitted/rf_fits.rda"))
 # # write out results
 # save(bt_fits, file = here("attempt_1/submissions/fitted/bt_fits.rda"))
 
-## poly svm ----
-# svm_poly_fit <- final_svm_poly |>
-#   fit(airbnb_train)
-# 
-# # write out results
-# save(svm_poly_fit, file = here("attempt_1/submissions/fitted/svm_poly_fit.rda"))
-
 # rbf svm ----
 svm_rbf_fit <- final_svm_rbf |>
   fit(airbnb_train)
