@@ -1,19 +1,20 @@
 # Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 2
-# Step 3: tune boosted tree models (xgboost)
+# Step 3: tune boosted tree models (lightgbm)
 
 # Load packages ----
 library(tidyverse)
 library(tidymodels)
 library(here)
 library(future)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
 
 # set seed
-set.seed(3)
+set.seed(392)
 
 # Load objects ----
 
@@ -33,7 +34,7 @@ bt_spec <- boost_tree(
   min_n = tune(),
   learn_rate = tune()
 ) |> 
-  set_engine("xgboost") |> 
+  set_engine("lightgbm") |> 
   set_mode("classification")
 
 # Define workflow ----
@@ -55,7 +56,7 @@ bt_params <- extract_parameter_set_dials(bt_spec) |>
 
 # build tuning grid
 bt_grid <- grid_regular(
-  bt_params, 
+  bt_params,
   levels = c(mtry = 3, trees = 4, min_n = 3, learn_rate = 8)
 )
 
@@ -66,15 +67,16 @@ cores <- availableCores() - 1
 plan(multisession, workers = cores)
 
 # fit workflow
-btx_tuned <- bt_wflow |> 
+btl_tuned <- bt_wflow |> 
   tune_grid(
     airbnb_folds, 
     grid = bt_grid,
-    control = keep_wflow_grid
+    control = keep_wflow_grid,
+    metrics = my_metrics
   )
 
 # reset to sequential processing
 plan(sequential)
 
 # Write out results ----
-save(btx_tuned, file = here("attempt_2/results/btx_tuned.rda"))
+save(btl_tuned, file = here("attempt_2/results/btl_tuned.rda"))
