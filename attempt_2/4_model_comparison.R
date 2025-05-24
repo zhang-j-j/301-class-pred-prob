@@ -24,7 +24,7 @@ list.files(
 # package as workflow set
 tune_results <- as_workflow_set(
   btx = btx_tuned,
-  rf = rf_tuned
+  # rf = rf_tuned
 )
 
 # Compare performance metrics ----
@@ -66,8 +66,11 @@ get_hyperparams <- function(result, n, params) {
 # btx_tuned |>
 #   roc_auc_metrics()
 
+# appears to be maximum with learn rate, use smallest min_n
+# could try larger values of trees, specific tuning for mtry
+
 # top models
-final_btx <- c(1, 2, 3, 4, 5) |> 
+final_btx <- c(1, 2, 3, 4) |> 
   map(
     \(x) btx_tuned |> 
       extract_workflow() |> 
