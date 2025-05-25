@@ -50,27 +50,27 @@ compute_preds <- function(model) {
 # }
 
 ## rf ----
-# rf_preds <- rf_fits |>
-#   mutate(
-#     preds = map(rf_fits$fit, compute_preds)
-#   )
-# 
-# # write out results
-# for (ind in c(1, 2, 3, 4)) {
-#   write_csv(rf_preds$preds[[ind]], file = here(paste0(
-#     "attempt_2/submissions/preds/rf_preds_", as.character(ind), ".csv"
-#   )))
-# }
+rf_preds <- rf_fits |>
+  mutate(
+    preds = map(rf_fits$fit, compute_preds)
+  )
+
+# write out results
+for (ind in c(1, 2)) {
+  write_csv(rf_preds$preds[[ind]], file = here(paste0(
+    "attempt_2/submissions/preds/rf_preds_", as.character(ind), ".csv"
+  )))
+}
 
 ## btl ----
-# btl_preds <- btl_fits |>
-#   mutate(
-#     preds = map(btl_fits$fit, compute_preds)
-#   )
-# 
-# # write out results
-# for (ind in c(1, 2, 3)) {
-#   write_csv(btl_preds$preds[[ind]], file = here(paste0(
-#     "attempt_2/submissions/preds/btl_preds_", as.character(ind), ".csv"
-#   )))
-# }
+btl_preds <- btl_fits |>
+  mutate(
+    preds = map(btl_fits$fit, compute_preds)
+  )
+
+# write out results
+for (ind in c(1:10)) {
+  write_csv(btl_preds$preds[[ind]], file = here(paste0(
+    "attempt_2/submissions/preds/btl_preds_", as.character(ind), ".csv"
+  )))
+}

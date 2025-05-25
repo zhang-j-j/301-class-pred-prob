@@ -7,6 +7,7 @@
 library(tidyverse)
 library(tidymodels)
 library(here)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
@@ -32,15 +33,18 @@ tune_results <- as_workflow_set(
 
 # roc_auc is the final performance metric
 
-all_models <- tune_results |>
-  collect_metrics() |>
-  filter(.metric == "roc_auc") |>
-  arrange(-mean)
+# all_models <- tune_results |>
+#   collect_metrics() |>
+#   filter(.metric == "roc_auc") |>
+#   arrange(-mean)
+# 
+# all_models |> view()
+# 
+# tune_results |>
+#   autoplot(metric = "roc_auc", select_best = TRUE, std_errs = 1)
 
-all_models |> view()
-
-tune_results |>
-  autoplot(metric = "roc_auc", select_best = TRUE)
+# lightgbm boosted trees are the best by a significant amount
+# random forest appears to perform quite poorly here
 
 # Analyze tuning values ----
 
@@ -86,13 +90,13 @@ save(final_btx, file = here("attempt_2/submissions/workflows/final_btx.rda"))
 # rf_tuned |>
 #   autoplot(metric = "roc_auc")
 # 
-# # 400 trees seems to give stability
-# 
 # rf_tuned |>
 #   roc_auc_metrics()
 
+# smaller min_n gives best performance, appears to have some peak at moderate mtry
+
 # top models
-final_rf <- c(1, 2, 3, 4) |> 
+final_rf <- c(1, 2) |> 
   map(
     \(x) rf_tuned |> 
       extract_workflow() |> 
@@ -107,17 +111,21 @@ save(final_rf, file = here("attempt_2/submissions/workflows/final_rf.rda"))
 # btl_tuned |>
 #   autoplot(metric = "roc_auc")
 # 
-# btl_tuned |> 
-#   roc_auc_metrics()
+# btl_tuned |>
+#   roc_auc_metrics() |> view()
 
-# # top models
-# final_btl <- c(1, 2, 3) |> 
-#   map(
-#     \(x) btl_tuned |> 
-#       extract_workflow() |> 
-#       finalize_workflow(get_hyperparams(btl_tuned, x, c(mtry, trees, min_n, learn_rate)))
-#   ) |> 
-#   as_tibble_col(column_name = "workflow")
-# 
-# # save workflows
-# save(final_btl, file = here("attempt_2/submissions/workflows/final_btl.rda"))
+# appears to be maximum with learn rate, use smaller min_n values
+# could try larger values of trees, specific tuning for mtry
+# top 10 models are all within 1 standard error
+
+# top models
+final_btl <- c(1:10) |>
+  map(
+    \(x) btl_tuned |>
+      extract_workflow() |>
+      finalize_workflow(get_hyperparams(btl_tuned, x, c(mtry, trees, min_n, learn_rate)))
+  ) |>
+  as_tibble_col(column_name = "workflow")
+
+# save workflows
+save(final_btl, file = here("attempt_2/submissions/workflows/final_btl.rda"))

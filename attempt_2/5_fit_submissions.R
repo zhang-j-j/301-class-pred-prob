@@ -48,7 +48,7 @@ plan(multisession, workers = cores)
 
 ## rf ----
 # # set seed (to run separately)
-# set.seed(24)
+# set.seed(25)
 # 
 # rf_fits <- final_rf |>
 #   mutate(
@@ -60,7 +60,7 @@ plan(multisession, workers = cores)
 
 ## btl ----
 # # set seed (to run separately)
-# set.seed(91)
+# set.seed(408)
 # 
 # btl_fits <- final_btl |>
 #   mutate(
