@@ -71,8 +71,7 @@ btl_tuned <- bt_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = bt_grid,
-    control = keep_wflow_grid,
-    metrics = my_metrics
+    control = keep_wflow_grid
   )
 
 # reset to sequential processing

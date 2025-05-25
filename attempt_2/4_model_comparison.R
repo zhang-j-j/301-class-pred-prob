@@ -24,22 +24,23 @@ list.files(
 # package as workflow set
 tune_results <- as_workflow_set(
   btx = btx_tuned,
-  # rf = rf_tuned
+  rf = rf_tuned,
+  btl = btl_tuned
 )
 
 # Compare performance metrics ----
 
 # roc_auc is the final performance metric
 
-# all_models <- tune_results |>
-#   collect_metrics() |>
-#   filter(.metric == "roc_auc") |>
-#   arrange(-mean)
-# 
-# all_models |> view()
-# 
-# tune_results |>
-#   autoplot(metric = "roc_auc", select_best = TRUE)
+all_models <- tune_results |>
+  collect_metrics() |>
+  filter(.metric == "roc_auc") |>
+  arrange(-mean)
+
+all_models |> view()
+
+tune_results |>
+  autoplot(metric = "roc_auc", select_best = TRUE)
 
 # Analyze tuning values ----
 
