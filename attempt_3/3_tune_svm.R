@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 3: tune radial basis function svm models
@@ -18,9 +18,6 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
-
 # tree recipe
 load(here("attempt_3/recipes/lm_rec.rda"))
 
@@ -30,7 +27,7 @@ svm_spec <- svm_rbf(
   rbf_sigma = tune()
 ) |> 
   set_engine("kernlab") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 svm_wflow <- workflow() |> 
@@ -63,8 +60,7 @@ svm_tuned <- svm_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = svm_grid,
-    control = control_stack_grid(),
-    metrics = my_metrics
+    control = control_stack_grid()
   )
 
 # reset to sequential processing

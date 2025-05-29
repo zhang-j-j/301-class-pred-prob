@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 3: tune mars models
@@ -18,9 +18,6 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
-
 # tree recipe
 load(here("attempt_3/recipes/lm_rec.rda"))
 
@@ -30,7 +27,7 @@ mars_spec <- mars(
   prod_degree = tune()
 ) |> 
   set_engine("earth") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 mars_wflow <- workflow() |> 
@@ -63,8 +60,7 @@ mars_tuned <- mars_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = mars_grid,
-    control = control_stack_grid(),
-    metrics = my_metrics
+    control = control_stack_grid()
   )
 
 # reset to sequential processing

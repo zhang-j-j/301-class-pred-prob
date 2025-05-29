@@ -1,7 +1,7 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
-# Step 3: fit ols models
+# Step 3: fit logistic regression models
 
 # Load packages ----
 library(tidyverse)
@@ -18,20 +18,17 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
-
-# tree recipe
+# linear recipe
 load(here("attempt_3/recipes/lm_rec.rda"))
 
 # Model specification ----
-ols_spec <- linear_reg() |> 
-  set_engine("lm") |> 
-  set_mode("regression")
+log_spec <- logistic_reg() |> 
+  set_engine("glm") |> 
+  set_mode("classification")
 
 # Define workflow ----
-ols_wflow <- workflow() |> 
-  add_model(ols_spec) |> 
+log_wflow <- workflow() |> 
+  add_model(log_spec) |> 
   add_recipe(lm_rec)
 
 # Fit workflows ----
@@ -41,15 +38,14 @@ cores <- availableCores() - 1
 plan(multisession, workers = cores)
 
 # fit workflow
-ols_fit <- ols_wflow |> 
+log_fit <- log_wflow |> 
   fit_resamples(
     airbnb_folds, 
-    control = control_stack_resamples(),
-    metrics = my_metrics
+    control = control_stack_grid()
   )
 
 # reset to sequential processing
 plan(sequential)
 
 # Write out results ----
-save(ols_fit, file = here("attempt_3/results/ols_fit.rda"))
+save(log_fit, file = here("attempt_3/results/log_fit.rda"))

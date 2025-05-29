@@ -1,7 +1,7 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
-# Step 3: tune boosted tree models (xgboost)
+# Step 3: tune boosted tree models (lightgbm)
 
 # Load packages ----
 library(tidyverse)
@@ -9,20 +9,18 @@ library(tidymodels)
 library(here)
 library(stacks)
 library(future)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
 
 # set seed
-set.seed(356)
+set.seed(317)
 
 # Load objects ----
 
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
-
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
 
 # tree recipe
 load(here("attempt_3/recipes/tree_rec.rda"))
@@ -35,8 +33,8 @@ bt_spec <- boost_tree(
   learn_rate = tune(),
   tree_depth = tune()
 ) |> 
-  set_engine("xgboost") |> 
-  set_mode("regression")
+  set_engine("lightgbm") |> 
+  set_mode("classification")
 
 # Define workflow ----
 bt_wflow <- workflow() |> 
@@ -47,20 +45,20 @@ bt_wflow <- workflow() |>
 
 # change hyperparameter ranges
 # from the recipe, 98 predictor columns after preprocessing
-# adjust based on attempt 2 results
+# adjust based on attempt 2 results ----
 bt_params <- extract_parameter_set_dials(bt_spec) |> 
   update(
     mtry = mtry(c(40, 90)),
     trees = trees(c(600, 1200)),
-    min_n = min_n(),
-    learn_rate = learn_rate(c(-2, -0.5)),
+    min_n = min_n(c(2, 20)),
+    learn_rate = learn_rate(c(0.03, 0.09), trans = NULL),
     tree_depth = tree_depth()
   )
 
 # build tuning grid
 bt_grid <- grid_regular(
   bt_params,
-  levels = c(mtry = 3, trees = 3, min_n = 3, learn_rate = 4, tree_depth = 4)
+  levels = c(mtry = 3, trees = 3, min_n = 3, learn_rate = 3, tree_depth = 4)
 )
 
 # Fit workflows ----
@@ -74,8 +72,7 @@ bt_tuned <- bt_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = bt_grid,
-    control = control_stack_grid(),
-    metrics = my_metrics
+    control = control_stack_grid()
   )
 
 # reset to sequential processing

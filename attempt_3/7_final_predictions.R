@@ -16,6 +16,7 @@ tidymodels_prefer()
 
 # testing data
 load(here("data/test_clean.rda"))
+## remember to add the column
 
 # fitted bt workflows
 load(here("attempt_3/submissions/fitted/bt_final_fits.rda"))

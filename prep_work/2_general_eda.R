@@ -57,19 +57,13 @@ train_clean |>
   count(host_about, host_since) |> 
   arrange(-n)
 
-## put this inside a mutate for recipe (custom recipe step)
+## add this in at the initial setup stage
 train_clean |> 
   mutate(
-    host_match = train_clean |> 
-      left_join(
-        train_clean |> count(host_about, host_since),
-        join_by(host_about, host_since)
-      ) |> 
-      pull(n),
+    num = n(),
+    .by = c(host_about, host_since),
     .keep = "used"
-  ) |> 
-  ggplot(aes(host_match)) +
-  geom_density()
+  )
 
 # neighborhood does not look recoverable
 train_clean |> 

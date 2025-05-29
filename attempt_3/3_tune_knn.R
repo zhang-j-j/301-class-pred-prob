@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 3: tune knn models
@@ -14,17 +14,14 @@ library(future)
 tidymodels_prefer()
 
 # set seed
-set.seed(132)
+set.seed(1256)
 
 # Load objects ----
 
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
-
-# tree recipe
+# ljnear recipe
 load(here("attempt_3/recipes/lm_rec.rda"))
 
 # Model specification ----
@@ -32,7 +29,7 @@ knn_spec <- nearest_neighbor(
   neighbors = tune()
 ) |> 
   set_engine("kknn") |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 knn_wflow <- workflow() |> 
@@ -44,13 +41,13 @@ knn_wflow <- workflow() |>
 # change hyperparameter ranges
 knn_params <- extract_parameter_set_dials(knn_wflow) |> 
   update(
-    neighbors = neighbors(c(8, 20))
+    neighbors = neighbors(c(11, 25))
   )
 
 # build tuning grid
 knn_grid <- grid_regular(
   knn_params,
-  levels = c(neighbors = 13)
+  levels = c(neighbors = 15)
 )
 
 # Fit workflows ----
@@ -64,8 +61,7 @@ knn_tuned <- knn_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = knn_grid,
-    control = control_stack_grid(),
-    metrics = my_metrics
+    control = verbose_stk_control
   )
 
 # reset to sequential processing

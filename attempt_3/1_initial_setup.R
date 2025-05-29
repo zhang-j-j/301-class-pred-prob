@@ -20,7 +20,11 @@ load(here("data/train_clean.rda"))
 # split into training/testing sets to assess and compare the ensemble model
 
 # Data prep ----
-airbnb <- train_clean
+
+# add the host_match column
+airbnb <- train_clean |> 
+  add_count(host_about, host_since) |> 
+  rename(host_match = n)
 
 # skimr::skim_without_charts(airbnb)
 

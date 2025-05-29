@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 3: tune neural network models
@@ -18,9 +18,6 @@ tidymodels_prefer()
 # resamples
 load(here("attempt_3/data_splits/airbnb_folds.rda"))
 
-# controls and metrics
-load(here("attempt_3/data_splits/my_metrics.rda"))
-
 # tree recipe
 load(here("attempt_3/recipes/tree_rec.rda"))
 
@@ -30,7 +27,7 @@ nn_spec <- mlp(
   penalty = tune()
 ) |> 
   set_engine("nnet", MaxNWts = 5000) |> 
-  set_mode("regression")
+  set_mode("classification")
 
 # Define workflow ----
 nn_wflow <- workflow() |> 
@@ -63,8 +60,7 @@ nn_tuned <- nn_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = nn_grid,
-    control = control_stack_grid(),
-    metrics = my_metrics
+    control = control_stack_grid()
   )
 
 # reset to sequential processing

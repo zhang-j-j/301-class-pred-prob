@@ -8,25 +8,11 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 
-# load custom recipe step
-source(here("attempt_3/step_host_match.R"))
-
 # handle conflicts
 tidymodels_prefer()
 
 # Load data ----
 load(here("attempt_3/data_splits/airbnb_train.rda"))
-
-# Test custom recipe step ----
-
-# test_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |> 
-#   step_host_match(host_about, host_since)
-# 
-# test_rec |> 
-#   prep() |> 
-#   bake(new_data = NULL) |> 
-#   count(host_match) |> 
-#   print(n = 50)
 
 # Recipe base ----
 base_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |> 
@@ -64,7 +50,6 @@ base_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |>
     ),
     nights_range = maximum_nights - minimum_nights,
   ) |> 
-  step_host_match(host_about, host_since) |> 
   step_rm(
     where(lubridate::is.Date), description, host_location, host_about, host_neighbourhood,
     neighbourhood_cleansed, property_type, bathrooms_text, amenities
