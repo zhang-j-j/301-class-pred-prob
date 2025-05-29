@@ -61,7 +61,7 @@ knn_tuned <- knn_wflow |>
   tune_grid(
     airbnb_folds, 
     grid = knn_grid,
-    control = verbose_stk_control
+    control = control_stack_grid()
   )
 
 # reset to sequential processing
