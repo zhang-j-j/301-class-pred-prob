@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 2: setup preprocessing recipes
@@ -8,14 +8,28 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 
+# load custom recipe step
+source(here("attempt_3/step_host_match.R"))
+
 # handle conflicts
 tidymodels_prefer()
 
 # Load data ----
 load(here("attempt_3/data_splits/airbnb_train.rda"))
 
+# Test custom recipe step ----
+
+# test_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |> 
+#   step_host_match(host_about, host_since)
+# 
+# test_rec |> 
+#   prep() |> 
+#   bake(new_data = NULL) |> 
+#   count(host_match) |> 
+#   print(n = 50)
+
 # Recipe base ----
-base_rec <- recipe(price_log10 ~ ., data = airbnb_train) |> 
+base_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |> 
   step_mutate(
     location_match = case_when(
       stringr::str_detect(host_location, ", IL$|Illinois") & listing_location == "chicago" ~ 1,
@@ -48,8 +62,9 @@ base_rec <- recipe(price_log10 ~ ., data = airbnb_train) |>
     bed_bath_ratio = if_else(
       bathrooms == 0, bedrooms, bedrooms / bathrooms
     ),
-    nights_range = maximum_nights - minimum_nights
+    nights_range = maximum_nights - minimum_nights,
   ) |> 
+  step_host_match(host_about, host_since) |> 
   step_rm(
     where(lubridate::is.Date), description, host_location, host_about, host_neighbourhood,
     neighbourhood_cleansed, property_type, bathrooms_text, amenities
@@ -62,7 +77,6 @@ base_rec <- recipe(price_log10 ~ ., data = airbnb_train) |>
 # Linear recipe ----
 
 # add steps to base recipe for ols, en, knn, mars, svm models
-# initially wanted to try pca with all interactions, but computation time is too much
 lm_rec <- base_rec |> 
   step_dummy(all_nominal_predictors()) |> 
   step_corr(all_predictors()) |> 
@@ -75,7 +89,7 @@ lm_rec <- base_rec |>
 #   bake(new_data = NULL) |>
 #   skimr::skim_without_charts()
 
-# 73 predictor columns after preprocessing
+# 72 predictor columns after preprocessing
 
 # save recipe
 save(lm_rec, file = here("attempt_3/recipes/lm_rec.rda"))
@@ -94,7 +108,7 @@ tree_rec <- base_rec |>
 #   bake(new_data = NULL) |>
 #   skimr::skim_without_charts()
 
-# 98 predictor columns after preprocessing
+# 99 predictor columns after preprocessing
 
 # save recipe
 save(tree_rec, file = here("attempt_3/recipes/tree_rec.rda"))

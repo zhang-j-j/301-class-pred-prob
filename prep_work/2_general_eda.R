@@ -52,6 +52,25 @@ train_clean |>
   ) |> 
   count(host_info)
 
+# matching host info
+train_clean |> 
+  count(host_about, host_since) |> 
+  arrange(-n)
+
+## put this inside a mutate for recipe (custom recipe step)
+train_clean |> 
+  mutate(
+    host_match = train_clean |> 
+      left_join(
+        train_clean |> count(host_about, host_since),
+        join_by(host_about, host_since)
+      ) |> 
+      pull(n),
+    .keep = "used"
+  ) |> 
+  ggplot(aes(host_match)) +
+  geom_density()
+
 # neighborhood does not look recoverable
 train_clean |> 
   count(neighbourhood_cleansed) |> 
@@ -125,3 +144,70 @@ train_clean |>
 train_clean |> 
   mutate(across(where(is.numeric), \(x) if_else(x > 1000000, NA, x))) |> 
   skimr::skim_without_charts()
+
+## summary ----
+train_clean <- train_clean |> 
+  mutate(
+    location_match = case_when(
+      stringr::str_detect(host_location, ", IL$|Illinois") & listing_location == "chicago" ~ 1,
+      stringr::str_detect(host_location, ", HI$|Hawaii") & listing_location == "kauai" ~ 1,
+      stringr::str_detect(host_location, ", NC$|North Carolina") & listing_location == "asheville" ~ 1,
+      .default = 0
+    ),
+    exclam_desc = stringr::str_detect(description, "!"),
+    host_info = !is.na(host_about),
+    entire = stringr::str_detect(property_type, "[Ee]ntire"),
+    num_amenities = stringr::str_count(amenities, ","),
+    pool = stringr::str_detect(stringr::str_to_lower(amenities), "pool"),
+    extra = stringr::str_detect(stringr::str_to_lower(amenities), "extra"),
+    dishwasher = stringr::str_detect(stringr::str_to_lower(amenities), "dishwasher"),
+    dedicated = stringr::str_detect(stringr::str_to_lower(amenities), "dedicated"),
+    private = stringr::str_detect(stringr::str_to_lower(amenities), "private"),
+    storage = stringr::str_detect(stringr::str_to_lower(amenities), "storage"),
+    outdoor = stringr::str_detect(stringr::str_to_lower(amenities), "outdoor"),
+    shades = stringr::str_detect(stringr::str_to_lower(amenities), "shades"),
+    beach = stringr::str_detect(stringr::str_to_lower(amenities), "beach"),
+    grill = stringr::str_detect(stringr::str_to_lower(amenities), "grill"),
+    pets = stringr::str_detect(stringr::str_to_lower(amenities), "pets"),
+    host_year = lubridate::year(host_since),
+    longevity = lubridate::time_length(last_review - first_review, unit = "years"),
+    across(where(is.numeric), \(x) if_else(x > 1000000, NA, x)),
+    across(where(is.logical), as.numeric)
+  ) |> 
+  select(-c(
+    where(lubridate::is.Date), description, host_location, host_about, host_neighbourhood,
+    neighbourhood_cleansed, property_type, bathrooms_text, amenities
+  ))
+
+# New variables ----
+skimr::skim_without_charts(train_clean)
+
+# include this in attempt 3 with new variables from existing ones
+
+## beds/bedrooms ratio ----
+train_clean |> 
+  mutate(
+    bed_room_ratio = if_else(
+      bedrooms == 0, beds, beds / bedrooms
+    )
+  ) |> 
+  ggplot(aes(bed_room_ratio)) +
+  geom_density()
+
+## bedrooms/bathrooms ratio ----
+train_clean |> 
+  mutate(
+    bed_bath_ratio = if_else(
+      bathrooms == 0, bedrooms, bedrooms / bathrooms
+    )
+  ) |> 
+  ggplot(aes(bed_bath_ratio)) +
+  geom_density()
+
+## max-min nights ----
+train_clean |> 
+  mutate(
+    nights_range = maximum_nights - minimum_nights
+  ) |> 
+  ggplot(aes(nights_range)) +
+  geom_density()
