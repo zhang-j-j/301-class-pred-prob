@@ -41,7 +41,7 @@ plan(multisession, workers = cores)
 log_fit <- log_wflow |> 
   fit_resamples(
     airbnb_folds, 
-    control = control_stack_grid()
+    control = control_stack_resamples()
   )
 
 # reset to sequential processing
