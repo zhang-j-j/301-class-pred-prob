@@ -1,4 +1,4 @@
-# Regression Prediction Problem ----
+# Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
 # Step 4: train ensemble models
@@ -25,7 +25,7 @@ list.files(
 
 # package as workflow set
 tune_results <- as_workflow_set(
-  ols = ols_fit,
+  log = log_fit,
   bt = bt_tuned,
   en = en_tuned,
   knn = knn_tuned,
@@ -36,7 +36,7 @@ tune_results <- as_workflow_set(
 
 # workflow set without bt models
 no_bt_results <- as_workflow_set(
-  ols = ols_fit,
+  log = log_fit,
   en = en_tuned,
   knn = knn_tuned,
   mars = mars_tuned,
@@ -85,8 +85,9 @@ save(ens_1_fit, file = here("attempt_3/results/ensemble/ens_1_fit.rda"))
 ens_2_data <- stacks() |> 
   add_candidates(no_bt_results)
 
-# # check the stack
-# ens_2_data |> as_tibble()
+# check the stack
+ens_2_data |> as_tibble() |> 
+  skimr::skim_without_charts()
 
 ## fit stack ----
 
