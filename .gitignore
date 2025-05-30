@@ -36,3 +36,4 @@
 # if all datasets are too large then use data/*.csv (only ignores CSVs)
 # if you have other file types then use appropriate extension data/*.rds
 attempt_1/submissions/fitted/mars_fits.rda
+attempt_3/results/bt_tuned.rda
