@@ -1,7 +1,7 @@
 # Classification Prediction Problem ----
 # Stat 301-3
 # Attempt 3
-# Step 3: tune radial basis function svm models (adjusted preprocessing)
+# Step 3: tune radial basis function svm models (adjusted preprocessing trial)
 
 # Load packages ----
 library(tidyverse)

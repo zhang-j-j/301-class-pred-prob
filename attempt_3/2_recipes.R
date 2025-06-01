@@ -61,8 +61,9 @@ base_rec <- recipe(host_is_superhost ~ ., data = airbnb_train) |>
 
 # Linear recipe ----
 
-# add steps to base recipe for ols, en, knn, mars, models
+# add steps to base recipe for ols, en, knn, mars, svm models
 lm_rec <- base_rec |> 
+  step_YeoJohnson(all_numeric_predictors()) |> 
   step_dummy(all_nominal_predictors()) |> 
   step_corr(all_predictors()) |> 
   step_nzv(all_predictors()) |> 
@@ -74,7 +75,7 @@ lm_rec <- base_rec |>
 #   bake(new_data = NULL) |>
 #   skimr::skim_without_charts()
 
-# 72 predictor columns after preprocessing
+# 74 predictor columns after preprocessing
 
 # save recipe
 save(lm_rec, file = here("attempt_3/recipes/lm_rec.rda"))
