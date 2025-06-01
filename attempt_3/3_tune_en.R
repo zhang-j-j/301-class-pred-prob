@@ -51,9 +51,10 @@ en_grid <- grid_regular(
 
 # Fit workflows ----
 
-# set up parallel processing
-cores <- availableCores() - 1
-plan(multisession, workers = cores)
+# runs much faster without parallel processing
+# # set up parallel processing
+# cores <- availableCores() - 1
+# plan(multisession, workers = cores)
 
 # fit workflow
 en_tuned <- en_wflow |> 
@@ -63,8 +64,8 @@ en_tuned <- en_wflow |>
     control = control_stack_grid()
   )
 
-# reset to sequential processing
-plan(sequential)
+# # reset to sequential processing
+# plan(sequential)
 
 # Write out results ----
 save(en_tuned, file = here("attempt_3/results/en_tuned.rda"))

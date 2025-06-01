@@ -33,9 +33,10 @@ log_wflow <- workflow() |>
 
 # Fit workflows ----
 
-# set up parallel processing
-cores <- availableCores() - 1
-plan(multisession, workers = cores)
+# runs much faster without parallel processing
+# # set up parallel processing
+# cores <- availableCores() - 1
+# plan(multisession, workers = cores)
 
 # fit workflow
 log_fit <- log_wflow |> 
@@ -44,8 +45,8 @@ log_fit <- log_wflow |>
     control = control_stack_resamples()
   )
 
-# reset to sequential processing
-plan(sequential)
+# # reset to sequential processing
+# plan(sequential)
 
 # Write out results ----
 save(log_fit, file = here("attempt_3/results/log_fit.rda"))
