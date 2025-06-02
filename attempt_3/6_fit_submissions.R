@@ -8,12 +8,13 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 library(future)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
 
 # set seed
-set.seed(123)
+set.seed(3189)
 
 # Load objects ----
 

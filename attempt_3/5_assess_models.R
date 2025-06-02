@@ -8,6 +8,7 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 library(stacks)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
@@ -32,7 +33,7 @@ list.files(
 
 ## ens_1 ----
 
-# 21 member models, mostly boosted trees
+# 10 member models, all boosted trees
 ens_1_models |> autoplot(type = "weights")
 
 ens_1_models |> autoplot()
@@ -41,26 +42,22 @@ ens_1_models |> autoplot(type = "members")
 
 ## ens_2 ----
 
-# 16 member models, good variety between mars, nn, knn, svm
+# 15 member models, mostly svm but some mars, 1 nn and 1 knn
 ens_2_models |> autoplot(type = "weights")
 
 ens_2_models |> autoplot()
 
 ens_2_models |> autoplot(type = "members")
 
-# this one seems to perform much worse than the other ensemble
+# this one seems to perform slightly worse than the other ensemble
 
 # Compute predictions ----
 
 # function to compute predictions
 compute_preds <- function(model) {
   airbnb_test |> 
-    select(transformed = price_log10) |> 
-    bind_cols(model |> predict(airbnb_test)) |> 
-    mutate(
-      original = 10 ^ transformed,
-      .pred_orig = 10 ^ .pred
-    )
+    select(host_is_superhost) |> 
+    bind_cols(model |> predict(airbnb_test, type = "prob"))
 }
 
 # bt ----
@@ -78,12 +75,12 @@ ens_2_preds <- ens_2_fit |>
 
 ## ens members ----
 ens_1_members <- airbnb_test |> 
-  select(price_log10) |> 
-  bind_cols(ens_1_fit |> predict(airbnb_test, members = TRUE))
+  select(host_is_superhost) |> 
+  bind_cols(ens_1_fit |> predict(airbnb_test, type = "prob", members = TRUE))
 
 ens_2_members <- airbnb_test |> 
-  select(price_log10) |> 
-  bind_cols(ens_2_fit |> predict(airbnb_test, members = TRUE))
+  select(host_is_superhost) |> 
+  bind_cols(ens_2_fit |> predict(airbnb_test, type = "prob", members = TRUE))
 
 # Compute metrics ----
 
@@ -91,13 +88,12 @@ ens_2_members <- airbnb_test |>
 compute_metrics <- function(preds) {
   preds |> 
     summarize(
-      mae_log = mae(preds, truth = transformed, estimate = .pred) |> pull(.estimate),
-      mae_orig = mae(preds, truth = original, estimate = .pred_orig) |> pull(.estimate),
+      roc_auc(preds, host_is_superhost, .pred_1)
     )
 }
 
 ## bt ----
-bt_rank <- c(1:10) |> 
+bt_rank <- c(1:25) |> 
   map(
     \(x) bt_preds |> 
       pull(preds) |> 
@@ -105,9 +101,11 @@ bt_rank <- c(1:10) |>
       compute_metrics()
   ) |> 
   bind_rows() |> 
-  mutate(id = as.character(row_number()))
+  mutate(id = as.character(row_number())) |> 
+  arrange(-.estimate)
 
-# bt ranking (original scale): 2, 7, 1, 8, 3, 4, 5, 6, 9, 10
+# bt ranking: 1, 14, 10, 3, 13, 2, 22, 4, 18, 17, 16, 25, 7, 11, 19, 15, 12, 5, 23, 24
+# 8, 6, 21, 9, 20
 
 ## ens ----
 full_rank <- bind_rows(
@@ -115,40 +113,36 @@ full_rank <- bind_rows(
   ens_1_preds |> compute_metrics() |> mutate(id = "ens1"),
   ens_2_preds |> compute_metrics() |> mutate(id = "ens2")
 ) |> 
-  arrange(mae_orig)
+  arrange(-.estimate)
 
 full_rank |> view()
 
-# the first ensemble is slightly better than all of the boosted trees
+# notes: the best individual boosted tree is best, first ensemble is near the top
 # the second ensemble is pretty bad
-# these metrics seem suspiciously low, but keep going and see what happens
+# these are all relatively reasonable results
 
 ## ens members ----
 ens_1_members |> 
+  select(host_is_superhost, contains(".pred_1")) |> 
   summarize(
     across(
-      -price_log10,
-      \(x) mae(ens_1_members, truth = price_log10, estimate = x) |> pull(.estimate)
+      -host_is_superhost,
+      \(x) roc_auc(ens_1_members, host_is_superhost, x) |> pull(.estimate)
     )
   ) |> 
   pivot_longer(cols = everything()) |> 
-  arrange(value) |> 
-  print(n = 22)
+  arrange(-value)
 
-# try the following: ensemble, 30, 39, 89, 318, 31, 43, 92, 21
+# try all of the member models individually
 
 ens_2_members |> 
   summarize(
     across(
-      -price_log10, 
-      \(x) mae(ens_2_members, truth = price_log10, estimate = x) |> pull(.estimate)
+      -host_is_superhost, 
+      \(x) roc_auc(ens_2_members, host_is_superhost, x) |> pull(.estimate)
     )
   ) |> 
   pivot_longer(cols = everything()) |> 
-  arrange(value)
+  arrange(-value)
 
 # try the ensemble, but don't bother with any members
-
-# difficult to compute these metrics on the original scale, so stick with the log-scale
-# interesting that one of the boosted trees outperforms the ensemble, but wasn't 
-# selected in the prior step
