@@ -1,0 +1,62 @@
+---
+title: "Classification Prediction Problem Report"
+subtitle: "Data Science 3 with R (STAT 301-3)"
+author: "Jimmy Zhang"
+pagetitle: "Classification Report Jimmy Zhang"
+date: today
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    embed-resources: true
+    code-fold: false
+    link-external-newwindow: true
+
+execute:
+  warning: false
+
+from: markdown+emoji
+reference-location: margin
+citation-location: margin 
+---
+
+::: {.callout-tip icon=false}
+
+## Github Repo Link
+
+[Jimmy's Github Repo (zhang-j-j)](https://github.com/stat301-3-2025-spring/class-pred-prob-zhang-j-j)
+
+:::
+
+## Overview
+
+- general overview of the prediction problem/assessment metric/data
+- initial prep steps
+
+## Model Development
+
+- use 3 attempts: 1 minimal, 1 tree-based focused, 1 ensemble/tree final
+- add slightly more preprocessing in each attempt
+
+### Submission 1
+
+- number 1: Attempt 2 btl 2 (best on public leaderboard)
+- describe the model (type, preprocessing, hyperparameters)
+- no assessment on the testing set since this attempt didn't split the data, but interesting that it performed best
+
+### Submission 2
+
+- number 2: attempt 3, bt 1, test set join 2 (best on the testing set)
+- describe the model (type, preprocessing, hyperparameters)
+- assess its performance on the testing set, interesting that it wasn't as successful on the competition set
+
+## Conclusion
+
+- overall takeaways
+
+## Comment on Generative AI
+
+- used it to help with debugging some issues
