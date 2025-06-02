@@ -9,6 +9,7 @@ library(tidymodels)
 library(here)
 library(stacks)
 library(future)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
@@ -59,13 +60,13 @@ ens_1_data <- stacks() |>
 plan(multisession, workers = 5)
 
 # set seed (to run separately)
-set.seed(215)
+set.seed(61)
 
 # blend predictions
 ens_1_models <- ens_1_data |> 
   blend_predictions(
     penalty = c(10^(-6:-1), 0.5, 1, 1.5, 2), 
-    metric = metric_set(mae)
+    metric = metric_set(roc_auc)
   )
 
 # fit members
@@ -85,9 +86,9 @@ save(ens_1_fit, file = here("attempt_3/results/ensemble/ens_1_fit.rda"))
 ens_2_data <- stacks() |> 
   add_candidates(no_bt_results)
 
-# check the stack
-ens_2_data |> as_tibble() |> 
-  skimr::skim_without_charts()
+# # check the stack
+# ens_2_data |> as_tibble() |> 
+#   skimr::skim_without_charts()
 
 ## fit stack ----
 
@@ -95,13 +96,13 @@ ens_2_data |> as_tibble() |>
 plan(multisession, workers = 5)
 
 # set seed (to run separately)
-set.seed(229)
+set.seed(1805)
 
 # blend predictions
 ens_2_models <- ens_2_data |> 
   blend_predictions(
     penalty = c(10^(-6:-1), 0.5, 1, 1.5, 2),
-    metric = metric_set(mae)
+    metric = metric_set(roc_auc)
   )
 
 # fit members

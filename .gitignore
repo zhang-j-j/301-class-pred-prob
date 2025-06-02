@@ -37,3 +37,8 @@
 # if you have other file types then use appropriate extension data/*.rds
 attempt_1/submissions/fitted/mars_fits.rda
 attempt_3/results/bt_tuned.rda
+attempt_3/results/ensemble/ens_1_fit.rda
+attempt_3/results/ensemble/ens_1_models.rda
+attempt_3/results/ensemble/ens_2_fit.rda
+attempt_3/results/ensemble/ens_2_models.rda
+
