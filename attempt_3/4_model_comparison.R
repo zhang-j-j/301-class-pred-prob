@@ -8,6 +8,7 @@ library(tidyverse)
 library(tidymodels)
 library(here)
 library(future)
+library(bonsai)
 
 # handle conflicts
 tidymodels_prefer()
@@ -27,7 +28,7 @@ list.files(
 
 # package as workflow set
 tune_results <- as_workflow_set(
-  ols = ols_fit,
+  log = log_fit,
   en = en_tuned,
   knn = knn_tuned,
   bt = bt_tuned,
@@ -38,49 +39,50 @@ tune_results <- as_workflow_set(
 
 # Compare performance metrics ----
 
-# MAE is the final performance metric
+# roc_auc is the final performance metric
 # at this point, only really care about the individual bt models
 
 # all_models <- tune_results |>
 #   collect_metrics() |>
-#   filter(.metric == "mae") |>
-#   arrange(mean)
+#   filter(.metric == "roc_auc") |>
+#   arrange(-mean)
 # 
 # all_models |> view()
 # 
 # tune_results |>
-#   autoplot(metric = "mae", select_best = TRUE)
+#   autoplot(metric = "roc_auc", select_best = TRUE)
 
 # Analyze tuning values ----
 
-# function to extract all mae metrics
-mae_metrics <- function(result) {
+# function to extract all roc_auc metrics
+roc_auc_metrics <- function(result) {
   result |> 
     collect_metrics() |> 
-    filter(.metric == "mae") |> 
-    arrange(mean)
+    filter(.metric == "roc_auc") |> 
+    arrange(-mean)
 }
 
 # function to get n-th best hyperparameters
 get_hyperparams <- function(result, n, params) {
   result |> 
-    mae_metrics() |> 
+    roc_auc_metrics() |> 
     filter(row_number() == {{ n }}) |> 
     select({{ params }})
 }
 
 ## bt ----
 # bt_tuned |>
-#   autoplot(metric = "mae")
+#   autoplot(metric = "roc_auc")
 # 
 # bt_tuned |>
-#   mae_metrics() |> view()
+#   roc_auc_metrics() |> view()
 
 # these might actually be slightly worse than previous attempts (less training data
 # used so far), but generally similar results
+# a lot of them converge at a very good performance (top 25 within 1 standard error)
 
 # top models
-final_bt <- c(1:10) |> 
+final_bt <- c(1:25) |> 
   map(
     \(x) bt_tuned |> 
       extract_workflow() |> 
@@ -98,7 +100,7 @@ cores <- availableCores() - 1
 plan(multisession, workers = cores)
 
 # set seed (to run separately)
-set.seed(100)
+set.seed(30)
 
 # fit workflows
 bt_fits <- final_bt |>
