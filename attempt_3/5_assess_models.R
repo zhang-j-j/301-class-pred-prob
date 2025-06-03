@@ -146,3 +146,25 @@ ens_2_members |>
   arrange(-value)
 
 # try the ensemble, but don't bother with any members
+
+# Figure ----
+
+## bt1 roc curve ----
+bt_1_preds <- bt_preds |> 
+  pull(preds) |> 
+  pluck(1)
+
+# roc_auc = 0.9777 on test set
+bt_1_preds |> 
+  roc_auc(host_is_superhost, .pred_1)
+
+bt_1_preds |> 
+  roc_curve(host_is_superhost, .pred_1) |> 
+  autoplot() +
+  labs(
+    title = "ROC curve on testing set",
+    subtitle = "Area = 0.9777"
+  )
+
+# save figure
+ggsave(file = here("figures/fig_roc.png"), width = 4, height = 4)

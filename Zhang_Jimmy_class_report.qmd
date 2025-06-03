@@ -27,7 +27,7 @@ citation-location: margin
 
 ## Github Repo Link
 
-[Jimmy's Github Repo (zhang-j-j)](https://github.com/stat301-3-2025-spring/class-pred-prob-zhang-j-j)
+[Jimmy's Classification Github Repo (zhang-j-j)](https://github.com/stat301-3-2025-spring/class-pred-prob-zhang-j-j)
 
 :::
 
@@ -52,6 +52,10 @@ citation-location: margin
 - number 2: attempt 3, bt 1, test set join 2 (best on the testing set)
 - describe the model (type, preprocessing, hyperparameters)
 - assess its performance on the testing set, interesting that it wasn't as successful on the competition set
+
+![Plot the ROC curve from the testing set predictions.](figures/fig_roc.png){#fig-roc}
+
+@fig-roc
 
 ## Conclusion
 
