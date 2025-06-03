@@ -3068,7 +3068,7 @@ vertical-align: -.125em;
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -3115,34 +3115,22 @@ Github Repo Link
 <p><a href="https://github.com/stat301-3-2025-spring/class-pred-prob-zhang-j-j">Jimmy’s Classification Github Repo (zhang-j-j)</a></p>
 </div>
 </div>
-<section id="overview" class="level2">
+<section id="overview" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<ul>
-<li>general overview of the prediction problem/assessment metric/data</li>
-<li>initial prep steps</li>
-</ul>
-</section>
+<p>The goal of this classification problem is to predict if an Airbnb listing is from a superhost.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The assessment metric in this competition was area under the ROC curve (ROC_AUC), and a variety of predictive modeling techniques were implemented over multiple attempts to develop the best performing model. While the full results from the private leaderboard are not available, both of my submissions achieved the top benchmark on the public leaderboard (ROC_AUC greater than 0.975). Some of my other models also attained this level of performance.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup> <a href="https://www.kaggle.com/competitions/classification-spring-2025-airbnb-super-host/data">Link to Kaggle dataset</a> (downloaded April 2, 2025).</p></div></div></section>
 <section id="model-development" class="level2">
 <h2 class="anchored" data-anchor-id="model-development">Model Development</h2>
-<ul>
-<li>use 3 attempts: 1 minimal, 1 tree-based focused, 1 ensemble/tree final</li>
-<li>add slightly more preprocessing in each attempt</li>
-</ul>
+<p>Some initial data cleaning work was required to prepare the data for modeling. I then completed three iterations of the model development and refinement process. The first stage served as a high-level screening process to compare results between model types using minimal preprocessing. My next attempts were informed by these initial takeaways, and I also introduced more complex feature engineering steps in each. The second attempt focused on the top-performing model types (random forest and boosted tree), and the third attempt refined the best models from attempt 2 while also trying ensemble models.</p>
 <section id="submission-1" class="level3">
 <h3 class="anchored" data-anchor-id="submission-1">Submission 1</h3>
-<ul>
-<li>number 1: Attempt 2 btl 2 (best on public leaderboard)</li>
-<li>describe the model (type, preprocessing, hyperparameters)</li>
-<li>no assessment on the testing set since this attempt didn’t split the data, but interesting that it performed best</li>
-</ul>
+<p>My top-performing model on the public leaderboard was a boosted tree (<code>lightgbm</code>) from the second iteration which was 2nd best at the tuning stage. The hyperparameter values for this model are as follows: 90 randomly selected predictors (<code>mtry</code>), 1000 trees (<code>trees</code>), minimum node size of 2 (<code>min_n</code>), and a learning rate of about 0.0611 (<code>learn_rate</code>). Because I directly used the entire competition dataset without saving a testing set for this attempt, I was unable to independently assess this model’s performance. However, the estimates from resampling were consistent with the public leaderboard (within 1 standard error).</p>
+<p>In this iteration, I included feature engineering steps for general listing details (i.e. consistency in location, presence of host information, time between first and last reviews), specific amenities (i.e. pool, dishwasher), and other potential predictive relationships. I used grid search to tune hyperparameter values for each model type with resamples before refitting the best performing submodels to the entire training set and computing predictions for submission. Despite the inability to assess this model, I still do not expect much overfitting from this model to the public leaderboard, as all of my decisions during this attempt were based on the observed results and not the leaderboard.</p>
 </section>
 <section id="submission-2" class="level3">
 <h3 class="anchored" data-anchor-id="submission-2">Submission 2</h3>
-<ul>
-<li>number 2: attempt 3, bt 1, test set join 2 (best on the testing set)</li>
-<li>describe the model (type, preprocessing, hyperparameters)</li>
-<li>assess its performance on the testing set, interesting that it wasn’t as successful on the competition set</li>
-</ul>
+<p>While my second attempt already reached the top benchmark, my third attempt sought to further improve upon those results. I split the competition dataset into training and testing sets for this attempt, and the main addition to feature engineering was adding a column for the number of listings each host has in the dataset (by counting repeated instances of host information). One consideration with that was how to handle the final prediction set, and my results indicated that performance was better when only counting within the testing set (not combining counts from all of the data). Otherwise, I followed a similar overall procedure, and the only minor difference was an extra step of assessing the submodels before retraining them on the full competition set.</p>
+<p>My selected model was the best-peforming model on both the resamples and assessment set with a ROC_AUC value of 0.9777 (<a href="#fig-roc" class="quarto-xref">Figure 1</a>). This <code>lightgbm</code> boosted tree model used the hyperparameter parameters <code>mtry = 65</code>, <code>trees = 1200</code>, <code>min_n = 2</code>, <code>learn_rate = 0.06</code>, and maximum tree depth of 15 (<code>tree_depth</code>). Interestingly, this model performed quite a bit worse on the public leaderboard and did not even achieve the top benchmark. I suspect that this could be due to how I added the new column to the final testing set, but the alternative method (which I expected to be better, since it is more similar to how I handled the assessment set) was consistently worse across many models according to the public leaderboard. Nonetheless, I still selected this as my second submission on accoun of its strong performance estimates from resampling and the assesement set.</p>
 <div id="fig-roc" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3153,14 +3141,11 @@ Figure 1: Plot the ROC curve from the testing set predictions.
 </figcaption>
 </figure>
 </div>
-<p><a href="#fig-roc" class="quarto-xref">Figure 1</a></p>
 </section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<ul>
-<li>overall takeaways</li>
-</ul>
+<p>While these two were selected as the final submissions, I produced a number of other submissions that acheived the top benchmark on the public leaderboard. Notably, these were almost all boosted tree models from my second attempt, suggesting that the additional feature engineering step for the third attempt was not helpful. This was surprising, since I would expect a host with more listings is more likely to be a superhost. I am still somewhat skeptical of these results and would begin any future work by examining this more closely. Other improvements would likely lie in additional feature engineering steps, though it might be difficult to make any major improvements beyond the current level of performance. Overall, this completed a successful process to develop a very strong predictive model.</p>
 </section>
 <section id="comment-on-generative-ai" class="level2">
 <h2 class="anchored" data-anchor-id="comment-on-generative-ai">Comment on Generative AI</h2>
@@ -3168,6 +3153,7 @@ Figure 1: Plot the ROC curve from the testing set predictions.
 <li>used it to help with debugging some issues</li>
 </ul>
 </section>
+
 
 </main>
 <!-- /main column -->
