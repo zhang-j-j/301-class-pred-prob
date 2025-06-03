@@ -1,6 +1,6 @@
 ## Classification Prediction Problem
 
-This repository contaims work for a [Kaggle competition](https://www.kaggle.com/competitions/classification-spring-2025-airbnb-super-host) from STAT 301-3 (Northwestern University, Spring 2025). The goal of this regression problem is to predict if an Airbnb listing is from a superhost, and area under the ROC curve (ROC_AUC) is the assessment metric. A variety of predictive modeling techniques were implemented over multiple iterations of the model development process to develop the best performing model. From these results, two final models were selected as submissions for the competition.
+This repository contaims work for a [Kaggle competition](https://www.kaggle.com/competitions/classification-spring-2025-airbnb-super-host) from STAT 301-3 (Northwestern University, Spring 2025). The goal of this classification problem is to predict if an Airbnb listing is from a superhost, and area under the ROC curve (ROC_AUC) is the assessment metric. A variety of predictive modeling techniques were implemented over multiple iterations of the model development process to develop the best performing model. From these results, two final models were selected as submissions for the competition.
 
 ## Repo Structure
 
