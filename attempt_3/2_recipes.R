@@ -80,27 +80,6 @@ lm_rec <- base_rec |>
 # save recipe
 save(lm_rec, file = here("attempt_3/recipes/lm_rec.rda"))
 
-# SVM recipe ----
-
-# add steps to base recipe for svm models
-svm_rec <- base_rec |> 
-  step_YeoJohnson(all_numeric_predictors()) |> 
-  step_dummy(all_nominal_predictors()) |> 
-  step_corr(all_predictors()) |> 
-  step_nzv(all_predictors()) |> 
-  step_normalize(all_predictors())
-
-# # check recipe
-# svm_rec |>
-#   prep() |>
-#   bake(new_data = NULL) |>
-#   skimr::skim_without_charts()
-
-# 74 predictor columns after preprocessing
-
-# save recipe
-save(svm_rec, file = here("attempt_3/recipes/svm_rec.rda"))
-
 # Tree recipe ----
 
 # recipe for bt, nn models
