@@ -44,3 +44,5 @@ attempt_3/results/ensemble/ens_2_models.rda
 attempt_3/submissions/fitted/bt_fits.rda
 attempt_3/submissions/fitted/bt_final_fits.rda
 
+final_submissions/model_2/results/bt_final_fits.rda
+final_submissions/model_2/results/bt_tuned.rda
